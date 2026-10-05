@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Где рвётся ваша цепочка — тест Марины Брем</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#2F3545; --card:#3A3F52; --deep:#1A1F2E;
+  --text:#FFFFFF; --muted:#8B95A3; --gold:#C9A84C; --gold2:#D4B46A; --teal:#4FC3C8;
+  --line:rgba(139,149,163,.28);
+  --serif:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --sans:Inter, Roboto, -apple-system, "Segoe UI", Arial, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#2F3545; --card:#3A3F52; --text:#FFFFFF; } }
+:root[data-theme="dark"]{ --bg:#2F3545; --card:#3A3F52; --text:#FFFFFF; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{margin:0;font-variant-numeric:lining-nums;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:0 clamp(20px,5vw,64px)}
+header,footer{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:22px 0}
+header .brand{color:var(--gold);letter-spacing:.02em;font-weight:500}
+header .prod,footer{color:var(--muted)}
+footer{border-top:1px solid var(--line);margin-top:56px}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+h1{font-family:var(--serif);font-weight:600;text-transform:uppercase;color:var(--gold);font-size:clamp(36px,6.4vw,64px);line-height:1.02;letter-spacing:.01em;margin:0}
+.lead{font-size:clamp(17px,2.2vw,21px);max-width:34em;margin:20px 0 0}
+.muted{color:var(--muted)}
+.screen{display:none;padding-top:clamp(24px,6vh,64px)}
+.screen.on{display:block}
+
+/* ── Chain: the one signature element ── */
+.chain{display:flex;align-items:flex-start;margin:44px 0 0;padding:0}
+.link{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;position:relative}
+.link:not(:first-child)::before{content:"";position:absolute;top:31px;right:50%;width:100%;height:2px;background:var(--gold);opacity:.45;z-index:0}
+.ring{width:64px;height:64px;flex:none;border:2.5px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-family:var(--sans);font-size:20px;font-weight:700;line-height:1;font-variant-numeric:lining-nums tabular-nums;color:var(--gold);background:var(--bg);position:relative;z-index:1;transition:background .35s,color .35s,border-color .35s}
+.link .name{margin-top:14px;font-size:14px;font-weight:600;line-height:1.3;padding:0 4px}
+.link .hint{font-size:12.5px;color:var(--muted);line-height:1.35;margin-top:4px;padding:0 6px}
+.link .score{font-size:13px;color:var(--muted);margin-top:4px}
+/* states */
+.ring.dim{border-color:var(--line);color:var(--muted)}
+.ring.cur{background:var(--gold)!important;color:var(--deep)}
+.ring.done{border-color:var(--gold2);color:var(--gold2)}
+.ring.ok{border-color:var(--gold);color:var(--gold)}
+.ring.mid{border-color:var(--gold2);border-style:dashed;color:var(--gold2)}
+.ring.weak{border-color:var(--muted);border-style:dashed;color:var(--muted)}
+.ring.broken{background:var(--gold)!important;border-color:var(--gold);color:var(--deep)}
+.tag{display:inline-block;vertical-align:middle;margin-left:8px;font-family:var(--sans);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;line-height:1;background:var(--gold);color:var(--deep);padding:4px 7px;border-radius:4px}
+.legend i.f{background:var(--gold)}
+.chain.small{margin:0 0 28px}
+.chain.small .ring{width:32px;height:32px;font-size:13px;border-width:2px}
+.chain.small .link:not(:first-child)::before{top:15px}
+.chain.small .name{font-size:11.5px;margin-top:8px;font-weight:500;color:var(--muted)}
+.chain.small .ring.cur + .txt .name{color:var(--text)}
+
+.rule{margin:44px 0 0;padding:18px 22px;border-left:4px solid var(--gold);background:var(--card);max-width:40em}
+.rule b{color:var(--gold2);font-weight:600}
+.startrow{display:flex;flex-wrap:wrap;align-items:center;gap:18px 28px;margin-top:40px}
+
+button,.btn{font:inherit;cursor:pointer;border:0}
+.btn{display:inline-block;background:var(--gold);color:var(--deep);font-weight:600;font-size:17px;padding:16px 30px;border-radius:6px;text-decoration:none;transition:background .2s}
+.btn:hover{background:var(--gold2)}
+.btn.ghost{background:transparent;color:var(--text);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--muted);background:transparent}
+:focus-visible{outline:2.5px solid var(--teal);outline-offset:3px}
+
+/* ── Quiz ── */
+.qmeta{display:flex;justify-content:space-between;align-items:baseline;color:var(--muted);font-size:14px;margin-bottom:14px}
+.qmeta .zone{color:var(--gold2);font-weight:600}
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:36px}
+.bar i{display:block;height:100%;background:var(--gold);width:0;transition:width .3s}
+.q{font-size:clamp(22px,3.2vw,30px);font-weight:500;line-height:1.3;max-width:28em;margin:0 0 32px;min-height:2.6em}
+.answers{display:grid;gap:12px;max-width:560px}
+.ans{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:var(--card);color:var(--text);border:1.5px solid transparent;border-radius:8px;padding:18px 20px;font-size:17px;transition:border-color .15s}
+.ans:hover{border-color:var(--gold)}
+.ans .dot{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--muted)}
+.ans.sel{border-color:var(--gold)}
+.ans.sel .dot{border-color:var(--gold);background:var(--gold);box-shadow:inset 0 0 0 4px var(--card)}
+.back{background:none;color:var(--muted);font-size:15px;padding:8px 0;margin-top:28px}
+.back:hover{color:var(--text)}
+.back[hidden]{display:none}
+
+/* ── Result ── */
+.kicker{color:var(--muted);font-size:15px;margin:0 0 10px}
+.res-text{font-size:clamp(17px,2.1vw,20px);max-width:34em;margin:22px 0 0}
+.steps{margin:40px 0 0;padding:0;list-style:none;counter-reset:s;max-width:40em}
+.steps li{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:16px;padding:18px 0;border-top:1px solid var(--line)}
+.steps li::before{content:counter(s);width:36px;height:36px;display:grid;place-items:center;background:var(--gold);color:var(--deep);font-weight:700;border-radius:4px}
+.h2{font-family:var(--serif);text-transform:uppercase;font-weight:600;font-size:26px;color:var(--text);margin:56px 0 0;letter-spacing:.01em}
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13px;color:var(--muted);margin-top:22px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{width:14px;height:14px;border-radius:50%;border:2px solid var(--gold)}
+.legend i.m{border-color:var(--gold2);border-style:dashed}
+.legend i.w{border-color:var(--muted);border-style:dashed}
+.cta{margin-top:64px;padding:40px clamp(22px,4vw,48px);background:var(--deep);border-radius:10px;text-align:center}
+.cta p{max-width:30em;margin:0 auto 26px;font-size:18px}
+.cta .call{font-style:italic;color:var(--teal);font-size:clamp(22px,3vw,28px);font-weight:500;margin-bottom:24px;display:block}
+.cta .btn{background:var(--teal);color:var(--deep)}
+.cta .btn:hover{background:#6fd3d7}
+ .code{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;margin:0 auto 22px}
+#codeWord{font-size:clamp(26px,5vw,34px);font-weight:700;letter-spacing:.06em;padding:8px 20px;border:2px solid var(--gold);border-radius:6px;color:var(--text)}
+.copy{background:none;color:var(--muted);border:1.5px solid var(--line);border-radius:6px;padding:10px 16px;font-size:15px}
+.copy:hover{color:var(--text);border-color:var(--muted)}
+.cta .raffle{font-size:15px;color:var(--muted);margin:28px auto 14px}
+.cta .kick{font-size:15px;color:var(--muted);margin:0 auto 6px}
+.cta .call{margin-bottom:18px}
+.bonus{list-style:none;padding:0;margin:0 auto 30px;max-width:30em;text-align:left}
+.bonus li{position:relative;padding:12px 0 12px 30px;border-top:1px solid var(--line);font-size:16px;color:var(--muted);line-height:1.45}
+.bonus li b{color:var(--text);font-weight:600}
+.bonus li::before{content:"★";position:absolute;left:2px;top:12px;color:var(--gold)}
+.code{margin-bottom:0}
+.product{margin:32px 0 0;max-width:40em;color:var(--muted)}
+.product b{color:var(--gold2);font-weight:600}
+#rStrong{margin-top:32px}
+.again{display:block;margin:24px auto 0;background:none;color:var(--muted);font-size:15px}
+.again:hover{color:var(--text)}
+
+
+/* ── Lead form ── */
+.form{display:grid;gap:18px;max-width:520px;margin-top:32px}
+.field label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;font:inherit;font-size:17px;color:var(--text);background:var(--card);border:1.5px solid transparent;border-radius:8px;padding:14px 16px;outline:none;transition:border-color .15s}
+.field input::placeholder{color:#6f7888}
+.field input:focus{border-color:var(--gold)}
+.field.err input{border-color:#d98c8c}
+.check{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start;font-size:15px;line-height:1.45;color:var(--muted);cursor:pointer}
+.check input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--gold);cursor:pointer}
+.check a{color:var(--gold2);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.check.err span{color:#e2a5a5}
+.formerr{color:#e2a5a5;font-size:15px;min-height:1.2em;margin:0}
+.privacy-note{font-size:13px;color:var(--muted);margin:0}
+dialog{max-width:640px;width:calc(100% - 32px);max-height:85vh;background:var(--deep);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:28px 26px;font-size:15px;line-height:1.55}
+dialog::backdrop{background:rgba(10,12,20,.7)}
+dialog h3{font-family:var(--serif);text-transform:uppercase;color:var(--gold);font-size:24px;font-weight:600;margin:0 0 14px;line-height:1.15}
+dialog p{margin:0 0 12px;color:#d7dbe2}
+dialog .btn{margin-top:8px}
+@media (max-width:640px){
+  .chain:not(.small){flex-direction:column;margin-top:36px}
+  .chain:not(.small) .link{display:grid;grid-template-columns:52px 1fr;align-items:center;gap:0 14px;text-align:left;padding:8px 0}
+  .chain:not(.small) .link:not(:first-child)::before{top:-50%;right:auto;left:26px;width:2px;height:100%;transform:translateX(-50%)}
+  .chain:not(.small) .ring{width:52px;height:52px;font-size:18px}
+  .chain:not(.small) .name{margin:0;padding:0}
+  .chain:not(.small) .hint,.chain:not(.small) .score{padding:0;margin-top:2px}
+  .chain.small .name{display:none}
+  .chain.small{margin-bottom:20px}
+  .ans{padding:16px}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+.reveal .ring{animation:fill .5s ease-out both}
+@keyframes fill{from{opacity:.15;transform:scale(.92)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><span class="brand">БРЕМ про бизнес</span><span class="prod">Тест «Звено»</span></header>
+
+  <!-- INTRO -->
+  <section class="screen on" id="intro">
+    <h1>Где застревают<br>ваши деньги</h1>
+    <p class="lead">Клиенты есть, а денег нет? Деньги не пропадают — они застревают в одном из пяти звеньев. Тест за 5 минут покажет, где рвётся ваша цепочка и что у вас уже работает.</p>
+    <div class="chain" id="introChain"></div>
+    <div class="rule"><b>Правило цепи.</b> Деньги застревают не в самом слабом звене, а в первом порванном. Пока оно не держит, усилия в следующих звеньях не окупаются.</div>
+    <div class="startrow">
+      <button class="btn" id="startBtn">Начать тест</button>
+      <span class="muted">20 вопросов, около 5 минут. После теста — приглашение на бесплатный групповой разбор с Мариной 7 октября.</span>
+    </div>
+  </section>
+
+  <!-- LEAD -->
+  <section class="screen" id="lead">
+    <p class="kicker">Шаг 1 из 2</p>
+    <h1>Перед тестом</h1>
+    <p class="lead">Марина посмотрит ваш результат перед групповым разбором 7 октября. Оставьте контакты — так она сможет разобрать именно ваш случай.</p>
+    <div class="form">
+      <div class="field" id="fName"><label for="inName">ФИО</label><input id="inName" type="text" autocomplete="name" placeholder="Иванова Анна Сергеевна"></div>
+      <div class="field" id="fAct"><label for="inAct">Чем вы занимаетесь</label><input id="inAct" type="text" placeholder="Психолог, косметолог, ресторан…"></div>
+      <div class="field" id="fPhone"><label for="inPhone">Номер телефона</label><input id="inPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00"></div>
+      <label class="check" id="cPd"><input type="checkbox" id="inPd"><span>Я даю <a id="pdLink">согласие на обработку персональных данных</a></span></label>
+      <label class="check"><input type="checkbox" id="inAds"><span>Хочу получать приглашения на мероприятия и информацию о продуктах Марины Брем</span></label>
+      <p class="formerr" id="formErr" role="alert"></p>
+      <div><button class="btn" id="leadBtn">Перейти к тесту</button></div>
+    </div>
+  </section>
+
+  <dialog id="pdDialog">
+    <h3>Согласие на обработку персональных данных</h3>
+    <div id="pdText"></div>
+    <button class="btn" id="pdClose">Понятно</button>
+  </dialog>
+
+  <!-- QUIZ -->
+  <section class="screen" id="quiz">
+    <div class="chain small" id="quizChain"></div>
+    <div class="qmeta"><span class="zone" id="qZone"></span><span id="qCount"></span></div>
+    <div class="bar"><i id="qBar"></i></div>
+    <p class="q" id="qText"></p>
+    <div class="answers" id="answers"></div>
+    <button class="back" id="backBtn">Назад к предыдущему</button>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="result">
+    <p class="kicker" id="rKicker">Ваше узкое место</p>
+    <h1 id="rTitle"></h1>
+    <p class="res-text" id="rText"></p>
+    <div class="rule" id="rStrong"></div>
+    <div class="chain reveal" id="resChain"></div>
+    <div class="legend">
+      <span><i class="f"></i>ваше узкое место</span><span><i></i>держит</span><span><i class="m"></i>держит с натяжкой</span><span><i class="w"></i>рвётся</span>
+    </div>
+    <h2 class="h2">С чего начать</h2>
+    <ol class="steps" id="rSteps"></ol>
+    <div class="cta">
+      <p class="kick">Бесплатный групповой разбор</p>
+      <span class="call">7 октября, среда, 18:00 мск</span>
+      <p>Присоединиться может каждый, кто прошёл тест. Марина подсветит каждому его точку роста и покажет, как двигаться дальше именно с вашим узким местом.</p>
+      <ul class="bonus">
+        <li><b>Личная точка роста от Марины</b> — по результату вашего теста</li>
+        <li><b>Чек-лист «3 цифры дня»</b> — минута утром, и вы знаете, где деньги</li>
+        <li><b>Шпаргалка по точке безубыточности</b> — сколько нужно заработать, чтобы выйти в плюс</li>
+        <li><b>Список категорий расходов</b> — чтобы увидеть, куда утекают деньги</li>
+        <li><b>Розыгрыш мест в «Конструктор бизнеса»</b> среди участников разбора</li>
+        <li><b>Особые условия</b> на продукты Марины — только для тех, кто будет на разборе</li>
+      </ul>
+      <a class="btn" id="botBtn" href="https://t.me/+4gJQhbFDNXgxOTgy" target="_blank" rel="noopener">Вступить в чат разбора</a>
+      <p class="raffle">В чате напишите свой результат, чтобы Марина разобрала именно ваш случай:</p>
+      <div class="code"><span id="codeWord">ЗВЕНО</span><button class="copy" id="copyBtn">Скопировать</button></div>
+    </div>
+    <button class="again" id="againBtn">Пройти тест заново</button>
+  </section>
+
+  <footer><span>Марина Брем</span><a href="https://instagram.com/marina_brem_" target="_blank" rel="noopener">@marina_brem_</a></footer>
+</div>
+
+<script>
+// ===== НАСТРОЙКИ =====
+// URL веб-приложения Google Apps Script (куда уходят заявки). Пусто — данные никуда не отправляются.
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxfrxpZc17AWpvGFcziFXkyq1z1yYf0G0wWr07xTv3tfXkcwIrjjUyQP1IPVYoH72rPPQ/exec";
+// Данные оператора для текста согласия
+const OPERATOR = "Брем Марина";          // ФИО или «ИП Брем М. ...»
+const OPERATOR_INN = "";                 // ИНН, если есть
+const OPERATOR_CONTACT = "@marina_brem_"; // куда писать, чтобы отозвать согласие
+// =====================
+
+const ZONES = [
+  { name:"Ясность", hint:"кому и что вы продаёте",
+    q:[
+      "Я могу за 10 секунд объяснить, кому помогаю и с каким результатом.",
+      "Ко мне приходят за конкретным результатом, а не «просто посоветоваться».",
+      "Я знаю, почему выбирают меня, а не коллег.",
+      "Мои подписчики — это те, кто может у меня купить, а не только коллеги по нише."
+    ],
+    title:"Ясность",
+    text:"Людям непонятно, за что именно вам платить. Поэтому клиенты долго думают, торгуются или уходят к тем, кто объяснил понятнее.",
+    strong:"Вы понятно объясняете, кому и чем помогаете. На этом можно строить всё остальное.",
+    steps:[
+      "Допишите одно предложение: «Я помогаю [кому] получить [результат] за [срок или способ]».",
+      "Выпишите три причины, почему выбирают вас, и к каждой добавьте кейс или отзыв.",
+      "Проверьте шапку профиля: видно ли это предложение с первого взгляда."
+    ],
+    product:"Это звено закрываем на фокус-группе <b>«До миллиона»</b>: позиционирование и продуктовая линейка."},
+  { name:"Поток клиентов", hint:"откуда приходят люди",
+    q:[
+      "Я знаю, откуда пришли мои последние десять клиентов.",
+      "Новые заявки приходят каждую неделю, а не «то густо, то пусто».",
+      "У меня есть способ находить клиентов, который работает без моего ежедневного участия.",
+      "Если заявки перестанут приходить, я знаю, что делать в первую очередь."
+    ],
+    title:"Поток клиентов",
+    text:"Когда клиенты есть — деньги есть, когда нет — паника. Поток зависит от сезона, настроения и ваших сил.",
+    strong:"Люди к вам приходят — а это самое сложное в бизнесе эксперта.",
+    steps:[
+      "Выясните, откуда пришли последние десять клиентов, и усильте канал, который дал больше всех.",
+      "Составьте контент-план на две недели и публикуйте строго по нему.",
+      "Запустите один канал, который работает без вас: посевы, таргет или партнёрства."
+    ],
+    product:"Это звено закрываем на фокус-группе <b>«До миллиона»</b>: стратегия продаж и маркетинга."},
+  { name:"Цена и упаковка", hint:"сколько и как вы продаёте",
+    q:[
+      "Я спокойно называю свою цену и не даю скидку «на всякий случай».",
+      "Мои цены пересчитаны меньше года назад.",
+      "У меня есть линейка: недорогой вход, основной продукт и продукт дороже.",
+      "Клиент сразу видит, что входит в продукт и какой результат он получит."
+    ],
+    title:"Цена и упаковка",
+    text:"Клиенты есть, работы много, а денег остаётся мало. Вы продаёте дешевле, чем стоите, или клиенту нечего купить у вас второй раз.",
+    strong:"Вы умеете упаковать продукт и назвать цену — многим экспертам на это нужны годы.",
+    steps:[
+      "Пересчитайте цену от своих расходов и желаемого дохода, а не от цен коллег.",
+      "Соберите линейку из трёх ступеней: вход, основной продукт и продукт дороже.",
+      "Опишите каждый продукт: что входит, сколько длится, какой результат."
+    ],
+    product:"Это звено закрываем на фокус-группе <b>«До миллиона»</b>: продуктовая линейка из трёх продуктов и цены."},
+  { name:"Деньги и прибыль", hint:"сколько у вас остаётся",
+    q:[
+      "Я знаю, сколько у меня осталось чистыми за прошлый месяц, а не только сколько пришло.",
+      "Личные деньги и деньги бизнеса у меня не смешиваются.",
+      "Я плачу себе зарплату, а не «беру, сколько останется».",
+      "Я знаю, сколько нужно заработать за месяц, чтобы покрыть все расходы и налоги."
+    ],
+    title:"Деньги и прибыль",
+    text:"Деньги приходят и утекают непонятно куда. Кажется, что выручка — это прибыль, а в конце месяца на счёте пусто.",
+    strong:"Вы видите свои деньги. Среди экспертов это редкость и надёжная опора для роста.",
+    steps:[
+      "Разделите личную и рабочую карту — сегодня, а не с понедельника.",
+      "Записывайте доходы и расходы каждый день: хватает пяти минут.",
+      "Посчитайте точку безубыточности и назначьте себе зарплату."
+    ],
+    product:"Это звено закрывает <b>ФинГрам</b>: готовая таблица учёта, шпаргалка по точке безубыточности и калькулятор налогов."},
+  { name:"Система", hint:"процессы, время, команда",
+    q:[
+      "Если я заболею на неделю, бизнес не встанет.",
+      "У меня есть помощник или подрядчики, которым я отдаю рутину.",
+      "Я понимаю, на что уходит моя рабочая неделя, и успеваю главное.",
+      "Повторяющиеся задачи у меня расписаны: как продаю, как веду клиента, как публикую."
+    ],
+    title:"Система",
+    text:"Всё держится на вас. Работаете — деньги есть, остановились — всё встало. Расти некуда: в сутках больше нет часов.",
+    strong:"Бизнес держится не только на вас — у вас уже есть основа, чтобы расти.",
+    steps:[
+      "Неделю записывайте, на что уходит время, и отметьте задачи, которые может делать другой человек.",
+      "Распишите по шагам один процесс, который повторяется чаще всего.",
+      "Отдайте первую задачу помощнику или подрядчику."
+    ],
+    product:"Это звено закрываем в <b>«Конструкторе бизнеса»</b>: процессы, время и команда."}
+];
+const STRONG = {
+  title:"Цепь держит",
+  text:"Все пять звеньев работают. Ваша задача сейчас — не чинить, а расти: поднимать чек и выходить на новый уровень дохода.",
+  steps:[
+    "Добавьте в линейку продукт дороже текущего основного.",
+    "Поставьте цель по доходу на квартал и разложите её на продажи в неделю.",
+    "Отдайте команде всё, что не требует вашей экспертизы."
+  ],
+  product:"Следующий шаг — фокус-группа <b>«До миллиона»</b>: стратегия роста и масштаба."};
+const OPTIONS = [["Да, это про меня",2],["Отчасти",1],["Нет",0]];
+const PER = 4, TOTAL = ZONES.length*PER;
+const KEY = "brem-zveno-v3";
+let answers = new Array(TOTAL).fill(null), idx = 0;
+
+const $ = id => document.getElementById(id);
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({answers, idx})); }catch(e){} }
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && Array.isArray(s.answers) && s.answers.length===TOTAL){ answers=s.answers; idx=Math.min(s.idx||0,TOTAL-1);} }catch(e){} }
+
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on", s.id===id)); window.scrollTo({top:0}); }
+
+function chain(el, mode, info){
+  el.innerHTML = ZONES.map((z,i)=>{
+    let cls="", extra="", wrap="";
+    if(mode==="intro"){ cls=""; extra=`<span class="hint">${z.hint}</span>`; }
+    if(mode==="quiz"){ const cur=Math.floor(idx/PER); cls = i<cur?"done":i===cur?"cur":"dim"; }
+    if(mode==="result"){
+      const sc=info.scores[i];
+      cls = i===info.broken ? "broken" : sc>=6?"ok":sc>=4?"mid":"weak";
+      if(i===info.broken) wrap=" broken-wrap";
+      extra=`<span class="score">${sc} из 8</span>${i===info.broken?'<span class="tag">узкое место</span>':''}`;
+    }
+    const delay = mode==="result" ? ` style="animation-delay:${i*0.12}s"` : "";
+    return `<div class="link${wrap}"><div class="ring ${cls}"${delay}>${i+1}</div><div class="txt"><div class="name">${z.name}</div>${extra}</div></div>`;
+  }).join("");
+}
+
+function renderQ(){
+  const z = Math.floor(idx/PER);
+  chain($("quizChain"), "quiz");
+  $("qZone").textContent = `Звено ${z+1}. ${ZONES[z].name}`;
+  $("qCount").textContent = `${idx+1} из ${TOTAL}`;
+  $("qBar").style.width = (idx/TOTAL*100)+"%";
+  $("qText").textContent = ZONES[z].q[idx%PER];
+  $("answers").innerHTML = OPTIONS.map(([t,v])=>`<button class="ans${answers[idx]===v?" sel":""}" data-v="${v}"><span class="dot"></span>${t}</button>`).join("");
+  $("backBtn").hidden = idx===0;
+}
+
+let busy=false;
+function answer(v){
+  if(busy) return; busy=true;
+  answers[idx]=v;
+  $("answers").querySelectorAll(".ans").forEach(b=>b.classList.toggle("sel", +b.dataset.v===v));
+  setTimeout(()=>{
+    busy=false;
+    if(idx<TOTAL-1){ idx++; save(); renderQ(); }
+    else if(answers.every(a=>a!==null)){ save(); renderResult(); }
+    else { idx=answers.findIndex(a=>a===null); save(); renderQ(); }
+  }, 220);
+}
+
+function renderResult(){
+  const scores = ZONES.map((_,z)=>answers.slice(z*PER,z*PER+PER).reduce((a,b)=>a+(b||0),0));
+  let broken = scores.findIndex(s=>s<=3);
+  if(broken<0) broken = scores.findIndex(s=>s<=5);
+  const r = broken<0 ? STRONG : ZONES[broken];
+  // сильная сторона: звено с максимумом баллов, кроме узкого места
+  let best=-1; scores.forEach((s,i)=>{ if(i!==broken && (best<0 || s>scores[best])) best=i; });
+  $("rStrong").innerHTML = (broken<0 || scores[best]<4)
+    ? (broken<0 ? `<b>Ваша опора — вся цепочка.</b> Это надёжный фундамент для роста.`
+                : `<b>Вы честно ответили на все вопросы.</b> Это первый шаг: теперь видно, с чего начать.`)
+    : `<b>Ваша опора — ${ZONES[best].name.toLowerCase()}.</b> ${ZONES[best].strong}`;
+  $("rKicker").textContent = broken<0 ? "Результат" : `Ваше узкое место — звено ${broken+1}`;
+  $("rTitle").textContent = r.title;
+  $("rText").textContent = r.text;
+  $("rSteps").innerHTML = r.steps.map(s=>`<li><span>${s}</span></li>`).join("");
+    $("codeWord").textContent = broken<0 ? "ЗВЕНО 0" : `ЗВЕНО ${broken+1}`;
+  const rc = $("resChain"); rc.classList.remove("reveal"); void rc.offsetWidth; rc.classList.add("reveal");
+  chain(rc, "result", {scores, broken});
+  if(lead) send({type:"result", id:lead.id, zone: broken<0 ? "Цепь держит" : `${broken+1}. ${ZONES[broken].name}`, strong: best>=0 ? ZONES[best].name : "", scores: ZONES.map((z,i)=>`${z.name}: ${scores[i]}/8`).join("; ")});
+  show("result");
+}
+$("copyBtn").onclick = async ()=>{
+  const t=$("codeWord").textContent;
+  try{ await navigator.clipboard.writeText(t); $("copyBtn").textContent="Скопировано"; }
+  catch(e){ const r=document.createRange(); r.selectNodeContents($("codeWord")); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); $("copyBtn").textContent="Выделено — скопируйте"; }
+  setTimeout(()=>$("copyBtn").textContent="Скопировать",2000);
+};
+
+$("answers").onclick = e=>{ const b=e.target.closest(".ans"); if(b) answer(+b.dataset.v); };
+$("backBtn").onclick = ()=>{ if(idx>0){ idx--; save(); renderQ(); } };
+$("againBtn").onclick = ()=>{ answers=new Array(TOTAL).fill(null); idx=0; save(); show("intro"); };
+document.addEventListener("keydown", e=>{
+  if(!$("quiz").classList.contains("on")) return;
+  const map={"1":2,"2":1,"3":0}; if(e.key in map) answer(map[e.key]);
+});
+
+const LEAD_KEY="brem-zveno-lead-v3";
+let lead=null;
+try{ lead=JSON.parse(localStorage.getItem(LEAD_KEY)||"null"); }catch(e){}
+
+const DEBUG = /debug/.test(location.search);
+function dbg(msg){
+  if(!DEBUG) return;
+  let el=document.getElementById("dbg");
+  if(!el){ el=document.createElement("div"); el.id="dbg"; el.style.cssText="position:fixed;left:8px;right:8px;bottom:8px;z-index:99;background:#000;color:#4FC3C8;font:13px/1.4 monospace;padding:10px;border-radius:6px;white-space:pre-wrap"; document.body.appendChild(el); }
+  el.textContent += (el.textContent?"\n":"") + msg;
+}
+function send(payload){
+  if(!SHEET_URL){ dbg("SHEET_URL пустой — отправки нет"); return; }
+  const body=JSON.stringify(payload);
+  dbg("Отправляю: "+payload.type+" …");
+  fetch(SHEET_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body})
+    .then(r=>r.text()).then(t=>dbg("Ответ таблицы ("+payload.type+"): "+t.slice(0,120)))
+    .catch(err=>{
+      dbg("Ошибка: "+err.message+" — пробую запасной способ");
+      fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body}).then(()=>dbg("Запасной способ: отправлено (ответ не виден)")).catch(e=>dbg("Запасной способ: ошибка "+e.message));
+    });
+}
+
+function begin(){
+  if(answers.every(a=>a!==null)){ answers=new Array(TOTAL).fill(null); idx=0; save(); }
+  if(lead){ show("quiz"); renderQ(); } else { show("lead"); }
+}
+$("startBtn").onclick = begin;
+
+$("pdText").innerHTML = `
+<p>Заполняя форму на этой странице, я свободно, своей волей и в своём интересе даю согласие оператору — ${OPERATOR}${OPERATOR_INN?`, ИНН ${OPERATOR_INN}`:""} — на обработку моих персональных данных в соответствии с Федеральным законом № 152-ФЗ «О персональных данных».</p>
+<p><b>Какие данные:</b> фамилия, имя, отчество; сфера деятельности; номер телефона; ответы и результат теста.</p>
+<p><b>Цель обработки:</b> связь со мной, приглашение на групповой разбор и другие мероприятия, разбор результата теста.</p>
+<p><b>Действия с данными:</b> сбор, запись, систематизация, накопление, хранение, уточнение, использование, удаление и уничтожение — с использованием средств автоматизации и без них. Данные не передаются третьим лицам, кроме случаев, предусмотренных законом.</p>
+<p><b>Срок:</b> согласие действует до достижения целей обработки или до его отзыва. Отозвать согласие можно, написав оператору: ${OPERATOR_CONTACT}.</p>`;
+$("pdLink").onclick = e=>{ e.preventDefault(); const d=$("pdDialog"); if(d.showModal) d.showModal(); else d.setAttribute("open",""); d.scrollTop=0; };
+$("pdClose").onclick = ()=>{ const d=$("pdDialog"); if(d.close) d.close(); else d.removeAttribute("open"); };
+
+$("leadBtn").onclick = ()=>{
+  const name=$("inName").value.trim(), act=$("inAct").value.trim(), phone=$("inPhone").value.trim();
+  const digits=phone.replace(/\D/g,"");
+  const bad={fName:name.split(/\s+/).length<2, fAct:act.length<2, fPhone:digits.length<10||digits.length>15};
+  Object.entries(bad).forEach(([id,b])=>$(id).classList.toggle("err",b));
+  $("cPd").classList.toggle("err",!$("inPd").checked);
+  let msg="";
+  if(bad.fName) msg="Укажите фамилию и имя.";
+  else if(bad.fAct) msg="Напишите, чем вы занимаетесь.";
+  else if(bad.fPhone) msg="Проверьте номер телефона.";
+  else if(!$("inPd").checked) msg="Без согласия на обработку данных мы не сможем пригласить вас на разбор.";
+  $("formErr").textContent=msg;
+  if(msg) return;
+  lead={id:Date.now().toString(36)+Math.random().toString(36).slice(2,7), name, activity:act, phone, ads:$("inAds").checked, ts:new Date().toISOString()};
+  try{ localStorage.setItem(LEAD_KEY, JSON.stringify(lead)); }catch(e){}
+  send({type:"lead", ...lead, consent:true});
+  answers=new Array(TOTAL).fill(null); idx=0; save();
+  show("quiz"); renderQ();
+};
+["inName","inAct","inPhone"].forEach(id=>$(id).addEventListener("keydown",e=>{ if(e.key==="Enter") $("leadBtn").click(); }));
+
+load();
+chain($("introChain"), "intro");
+if(answers.some(a=>a!==null)) $("startBtn").textContent = answers.every(a=>a!==null) ? "Пройти заново" : "Продолжить тест";
+</script>
+</body>
+</html>
