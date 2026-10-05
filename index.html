@@ -242,7 +242,7 @@ dialog .btn{margin-top:8px}
 <script>
 // ===== НАСТРОЙКИ =====
 // URL веб-приложения Google Apps Script (куда уходят заявки). Пусто — данные никуда не отправляются.
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbzlLRT0tXRemo5uce3NT74np96IfMAIN1IPf63UNYH4Gx4jAVx38KgX4TwdSn190ChhEA/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbyrDXf-pmqXf6w66c3d4cTyxBpPD95mgGJXyUyUeSC-bYoy5fnm2WXw9pdzeMBg3wqTUg/exec";
 // Данные оператора для текста согласия
 const OPERATOR = "Брем Марина";          // ФИО или «ИП Брем М. ...»
 const OPERATOR_INN = "";                 // ИНН, если есть
@@ -409,7 +409,7 @@ function renderResult(){
     $("codeWord").textContent = broken<0 ? "ЗВЕНО 0" : `ЗВЕНО ${broken+1}`;
   const rc = $("resChain"); rc.classList.remove("reveal"); void rc.offsetWidth; rc.classList.add("reveal");
   chain(rc, "result", {scores, broken});
-  if(lead) send({type:"result", id:lead.id, zone: broken<0 ? "Цепь держит" : `${broken+1}. ${ZONES[broken].name}`, strong: best>=0 ? ZONES[best].name : "", scores: ZONES.map((z,i)=>`${z.name}: ${scores[i]}/8`).join("; ")});
+  if(lead) send({type:"result", ...lead, consent:true, zone: broken<0 ? "Цепь держит" : `${broken+1}. ${ZONES[broken].name}`, strong: best>=0 ? ZONES[best].name : "", scores: ZONES.map((z,i)=>`${z.name}: ${scores[i]}/8`).join("; ")});
   show("result");
 }
 $("copyBtn").onclick = async ()=>{
@@ -428,6 +428,7 @@ document.addEventListener("keydown", e=>{
 });
 
 const LEAD_KEY="brem-zveno-lead-v3";
+if(/reset/.test(location.search)){ try{ localStorage.removeItem(LEAD_KEY); localStorage.removeItem(KEY); }catch(e){} }
 let lead=null;
 try{ lead=JSON.parse(localStorage.getItem(LEAD_KEY)||"null"); }catch(e){}
 
